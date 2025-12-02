@@ -5,8 +5,8 @@ defmodule AdventOfCode2025.Day01.Password do
 
   defstruct [:data]
 
-  @start_at 50
-  @max_dial 100
+  @dial_starts_at 50
+  @dial_ends_at 100
 
   def from_file(filename) do
     data =
@@ -21,23 +21,65 @@ defmodule AdventOfCode2025.Day01.Password do
   defp parse_lines(lines) do
     Enum.map(lines, fn line ->
       case String.split_at(line, 1) do
-        {"R", rot} -> -String.to_integer(rot)
-        {"L", rot} -> String.to_integer(rot)
+        {"R", rot} -> String.to_integer(rot)
+        {"L", rot} -> -String.to_integer(rot)
       end
     end)
   end
 
   def solve_p1(%__MODULE__{data: rotations}) do
-    Enum.reduce(
-      rotations,
-      [@start_at],
-      fn rot, [top | rest] -> [Integer.mod(top + rot, @max_dial), top | rest] end
-    )
-    |> Enum.count(fn pos -> pos == 0 end)
+    {_final_pos, times_ends_at_zero} =
+      Enum.reduce(
+        rotations,
+        {@dial_starts_at, 0},
+        fn rot, {curr_pos, times_ends_at_zero} ->
+          case new_pos = Integer.mod(curr_pos + rot, @dial_ends_at) do
+            0 -> {new_pos, times_ends_at_zero + 1}
+            _ -> {new_pos, times_ends_at_zero}
+          end
+        end
+      )
+
+    times_ends_at_zero
   end
 
-  def solve_p2(%__MODULE__{data: data}) do
-    # TODO: Implement part 2
-    data
+  def solve_p2(%__MODULE__{data: rotations}) do
+    {_final_pos, times_passes_zero} =
+      Enum.reduce(
+        rotations,
+        {@dial_starts_at, 0},
+        fn rot, {curr_pos, times_passes_zero} ->
+          {new_pos, new_times_passes_zero} = passes_zero(curr_pos, rot)
+          {new_pos, times_passes_zero + new_times_passes_zero}
+        end
+      )
+
+    times_passes_zero
+  end
+
+  def passes_zero(curr_pos, to_rotate) when to_rotate > 0 do
+    passed_zero_before_final_turn = Kernel.div(to_rotate, @dial_ends_at)
+    remaining_rotations = Integer.mod(to_rotate, @dial_ends_at)
+
+    next_pos = Integer.mod(curr_pos + remaining_rotations, @dial_ends_at)
+    passed_zero_on_final_turn = Kernel.div(curr_pos + remaining_rotations, @dial_ends_at)
+
+    {next_pos, passed_zero_before_final_turn + passed_zero_on_final_turn}
+  end
+
+  def passes_zero(curr_pos, to_rotate) when to_rotate < 0 do
+    passed_zero_before_final_turn = Integer.floor_div(to_rotate, -@dial_ends_at)
+    remaining_rotations = Integer.mod(to_rotate, -@dial_ends_at)
+
+    next_pos = Integer.mod(curr_pos + remaining_rotations, @dial_ends_at)
+
+    passed_zero_on_final_turn =
+      cond do
+        curr_pos == 0 -> 0
+        curr_pos + remaining_rotations <= 0 -> 1
+        true -> 0
+      end
+
+    {next_pos, passed_zero_before_final_turn + passed_zero_on_final_turn}
   end
 end
