@@ -22,27 +22,43 @@ defmodule AdventOfCode2025.Day02.GiftShop do
 
   def solve_p1(%__MODULE__{data: ranges}) do
     ranges
-    |> Enum.flat_map(&find_invalid_ids_in_range/1)
+    |> Enum.flat_map(fn [a, b] ->
+      Enum.filter(a..b, fn num ->
+        str_num = Integer.to_string(num)
+        num_digits = String.length(str_num)
+
+        if rem(num_digits, 2) == 0 do
+          repeated?(str_num, div(num_digits, 2))
+        else
+          false
+        end
+      end)
+    end)
     |> Enum.sum()
   end
 
-  def solve_p2(%__MODULE__{data: data}) do
-    # TODO: Implement part 2
-    data
-  end
-
-  defp find_invalid_ids_in_range([a, b]) do
-    Enum.filter(a..b, fn num ->
-      str_num = Integer.to_string(num)
-      num_digits = String.length(str_num)
-      invalid?(str_num, num_digits)
+  def solve_p2(%__MODULE__{data: ranges}) do
+    ranges
+    |> Enum.flat_map(fn [a, b] ->
+      Enum.filter(a..b, fn num ->
+        str_num = Integer.to_string(num)
+        repeated?(str_num)
+      end)
     end)
+    |> Enum.sum()
   end
 
-  defp invalid?(str_num, num_digits) when rem(num_digits, 2) == 0 do
-    {a, b} = String.split_at(str_num, div(num_digits, 2))
-    a == b
-  end
+  defp repeated?(str_num), do: repeated?(str_num, 1)
 
-  defp invalid?(_str_num, num_digits) when rem(num_digits, 2) == 1, do: false
+  defp repeated?(str_num, prefix_length) when 2 * prefix_length > byte_size(str_num), do: false
+
+  defp repeated?(str_num, prefix_length) do
+    {prefix, _} = String.split_at(str_num, prefix_length)
+
+    if length(String.split(str_num, prefix, trim: true)) == 0 do
+      true
+    else
+      repeated?(str_num, prefix_length + 1)
+    end
+  end
 end
