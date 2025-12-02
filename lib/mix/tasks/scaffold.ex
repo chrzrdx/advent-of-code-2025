@@ -9,10 +9,8 @@ defmodule Mix.Tasks.Scaffold do
     validate_day!(day)
 
     module = %{
-      pascal_case:
-        module_name |> String.split("_") |> Enum.map(&String.capitalize/1) |> Enum.join(""),
-      snake_case:
-        module_name |> String.split("_") |> Enum.map(&String.downcase/1) |> Enum.join("_")
+      pascal_case: module_name |> String.split("_") |> Enum.map_join("", &String.capitalize/1),
+      snake_case: module_name |> String.split("_") |> Enum.map_join("_", &String.downcase/1)
     }
 
     with :ok <- create_directories(day),

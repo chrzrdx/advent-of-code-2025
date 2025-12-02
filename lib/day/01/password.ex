@@ -55,7 +55,7 @@ defmodule AdventOfCode2025.Day01.Password do
           # get completed and remaining turns
           # you cross zero once on every complete turn
           {completed, remaining} =
-            if(rot > 0) do
+            if rot > 0 do
               {floor_div(rot, @dial_ends_at), mod(rot, @dial_ends_at)}
             else
               {floor_div(rot, -@dial_ends_at), mod(rot, -@dial_ends_at)}
