@@ -17,49 +17,35 @@ defmodule AdventOfCode2025.Day03.Lobby do
 
   defp parse_lines(lines) do
     Enum.map(lines, fn line ->
-      line |> String.split("", trim: true) |> Enum.map(&String.to_integer/1)
+      line
+      |> String.split("", trim: true)
+      |> Enum.map(&String.to_integer/1)
     end)
   end
 
   def solve_p1(%__MODULE__{data: banks}) do
-    Enum.sum_by(banks, &get_max_joltage_with_two_batteries/1)
+    Enum.sum_by(banks, fn bank -> get_max_joltage_with_n_batteries(bank, 2) end)
   end
 
   def solve_p2(%__MODULE__{data: banks}) do
-    Enum.sum_by(banks, &get_max_joltage_with_twelve_batteries/1)
+    Enum.sum_by(banks, fn bank -> get_max_joltage_with_n_batteries(bank, 12) end)
   end
 
-  defp get_max_joltage_with_two_batteries(bank) do
-    [a, b | batteries] = bank
+  defp get_max_joltage_with_n_batteries(bank, n) do
+    {initial_max_n, rest} = Enum.split(bank, n)
 
     Enum.reduce(
-      batteries,
-      {a, b},
-      fn c, {x, y} -> Enum.max([{x, y}, {x, c}, {y, c}]) end
+      rest,
+      initial_max_n,
+      fn c, max_n -> drop_one_digit(max_n ++ [c]) end
     )
-    |> Tuple.to_list()
     |> Enum.join()
     |> String.to_integer()
   end
 
-  defp get_max_joltage_with_twelve_batteries(bank) do
-    [a, b, c, d, e, f, g, h, i, j, k, l | batteries] = bank
-
-    Enum.reduce(
-      batteries,
-      {a, b, c, d, e, f, g, h, i, j, k, l},
-      fn c, max_twelve ->
-        Enum.max(
-          Enum.map(
-            0..11,
-            fn i -> max_twelve |> Tuple.delete_at(i) |> Tuple.insert_at(11, c) end
-          ) ++
-            [max_twelve]
-        )
-      end
-    )
-    |> Tuple.to_list()
-    |> Enum.join()
-    |> String.to_integer()
-  end
+  # Find first digit smaller than next, drop it
+  # If none found (descending order), drop the last digit
+  defp drop_one_digit([a, b | rest]) when a < b, do: [b | rest]
+  defp drop_one_digit([a, b | rest]), do: [a | drop_one_digit([b | rest])]
+  defp drop_one_digit([_last]), do: []
 end
