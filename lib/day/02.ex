@@ -1,4 +1,8 @@
 defmodule AdventOfCode2025.Day02 do
+  @moduledoc """
+  Solutions for Advent of Code 2025, Day 02.
+  """
+
   alias AdventOfCode2025.Day02.GiftShop
 
   def solve_p1(filename) do

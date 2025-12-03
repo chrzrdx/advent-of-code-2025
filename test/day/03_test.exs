@@ -12,7 +12,7 @@ defmodule AdventOfCode2025.Day03Test do
     end
 
     test "puzzle" do
-      assert solve_p1(@puzzle) == 17332
+      assert solve_p1(@puzzle) == 17_332
     end
   end
 

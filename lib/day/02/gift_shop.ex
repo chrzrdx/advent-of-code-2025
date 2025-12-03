@@ -55,7 +55,7 @@ defmodule AdventOfCode2025.Day02.GiftShop do
   defp repeated?(str_num, prefix_length) do
     {prefix, _} = String.split_at(str_num, prefix_length)
 
-    if length(String.split(str_num, prefix, trim: true)) == 0 do
+    if Enum.empty?(String.split(str_num, prefix, trim: true)) do
       true
     else
       repeated?(str_num, prefix_length + 1)
