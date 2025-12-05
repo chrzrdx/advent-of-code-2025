@@ -31,6 +31,16 @@ defmodule AdventOfCode2025.Day05.Cafeteria do
     %__MODULE__{ranges: ranges, ingredients: ingredients}
   end
 
+  def solve_p1(%__MODULE__{ranges: ranges, ingredients: ingredients}) do
+    Enum.count(ingredients, fn ingredient ->
+      Enum.any?(ranges, fn range -> ingredient in range end)
+    end)
+  end
+
+  def solve_p2(%__MODULE__{ranges: ranges}) do
+    Enum.sum_by(ranges, &Range.size/1)
+  end
+
   defp merge_ranges(unmerged) do
     unmerged
     |> Enum.sort()
@@ -42,19 +52,12 @@ defmodule AdventOfCode2025.Day05.Cafeteria do
 
   defp merge_ranges([{a, b} | merged_rest], [{c, d} | unmerged_rest]) do
     cond do
+      # Disjoint ranges, so {a, b} is guaranteed merged
       c > b -> merge_ranges([{c, d}, {a, b} | merged_rest], unmerged_rest)
+      # {a, b} is a superset of {c, d} -> merge into {a, b}
       d <= b -> merge_ranges([{a, b} | merged_rest], unmerged_rest)
+      # {a, b} and {c, d} overlap -> merge into {a, d}
       true -> merge_ranges([{a, d} | merged_rest], unmerged_rest)
     end
-  end
-
-  def solve_p1(%__MODULE__{ranges: ranges, ingredients: ingredients}) do
-    Enum.count(ingredients, fn ingredient ->
-      Enum.any?(ranges, fn range -> ingredient in range end)
-    end)
-  end
-
-  def solve_p2(%__MODULE__{ranges: ranges}) do
-    Enum.sum_by(ranges, &Range.size/1)
   end
 end
