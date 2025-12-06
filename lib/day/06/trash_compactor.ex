@@ -14,13 +14,7 @@ defmodule AdventOfCode2025.Day06.TrashCompactor do
 
     {numbers_lines, [ops]} = Enum.split(lines, -1)
 
-    nums =
-      Enum.zip(numbers_lines)
-      |> Enum.map(fn line ->
-        line
-        |> Tuple.to_list()
-        |> Enum.map(&String.to_integer/1)
-      end)
+    nums = Enum.zip_with(numbers_lines, & &1)
 
     %__MODULE__{data: Enum.zip(nums, ops)}
   end
@@ -42,17 +36,14 @@ defmodule AdventOfCode2025.Day06.TrashCompactor do
     nums =
       numbers_lines
       |> Enum.map(fn line -> chunk(line, col_widths, []) end)
-      |> Enum.zip()
+      |> Enum.zip_with(& &1)
       |> Enum.map(fn nums ->
         nums
-        |> Tuple.to_list()
         |> Enum.map(&String.to_charlist/1)
-        |> Enum.zip()
-        |> Enum.map(&Tuple.to_list/1)
+        |> Enum.zip_with(& &1)
         |> Enum.map(&to_string/1)
         |> Enum.map(&String.trim/1)
-        |> Enum.filter(&(&1 != ""))
-        |> Enum.map(&String.to_integer/1)
+        |> Enum.reject(&(&1 == ""))
       end)
 
     chunked_ops = chunk(ops, col_widths, [])
@@ -73,8 +64,8 @@ defmodule AdventOfCode2025.Day06.TrashCompactor do
     Enum.sum_by(
       data,
       fn
-        {nums, "*"} -> Enum.product(nums)
-        {nums, "+"} -> Enum.sum(nums)
+        {nums, "*"} -> Enum.product_by(nums, &String.to_integer/1)
+        {nums, "+"} -> Enum.sum_by(nums, &String.to_integer/1)
       end
     )
   end
