@@ -3,13 +3,13 @@ defmodule AdventOfCode2025.Day06 do
 
   def solve_p1(filename) do
     filename
-    |> TrashCompactor.from_file()
-    |> TrashCompactor.solve_p1()
+    |> TrashCompactor.from_file_p1()
+    |> TrashCompactor.solve()
   end
 
   def solve_p2(filename) do
     filename
-    |> TrashCompactor.from_file()
-    |> TrashCompactor.solve_p2()
+    |> TrashCompactor.from_file_p2()
+    |> TrashCompactor.solve()
   end
 end

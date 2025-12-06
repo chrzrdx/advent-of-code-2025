@@ -5,7 +5,7 @@ defmodule AdventOfCode2025.Day06.TrashCompactor do
 
   defstruct [:data]
 
-  def from_file(filename) do
+  def from_file_p1(filename) do
     lines =
       filename
       |> File.read!()
@@ -14,23 +14,68 @@ defmodule AdventOfCode2025.Day06.TrashCompactor do
 
     {numbers_lines, [ops]} = Enum.split(lines, -1)
 
-    nums = Enum.zip(numbers_lines)
+    nums =
+      Enum.zip(numbers_lines)
+      |> Enum.map(fn line ->
+        line
+        |> Tuple.to_list()
+        |> Enum.map(&String.to_integer/1)
+      end)
 
     %__MODULE__{data: Enum.zip(nums, ops)}
   end
 
-  def solve_p1(%__MODULE__{data: data}) do
+  def from_file_p2(filename) do
+    lines =
+      filename
+      |> File.read!()
+      |> String.split("\n", trim: true)
+
+    {numbers_lines, [ops]} = Enum.split(lines, -1)
+
+    col_widths =
+      ops
+      |> String.split(~r/\*|\+/)
+      |> tl()
+      |> Enum.map(fn width -> String.length(width) + 1 end)
+
+    nums =
+      numbers_lines
+      |> Enum.map(fn line -> chunk(line, col_widths, []) end)
+      |> Enum.zip()
+      |> Enum.map(fn nums ->
+        nums
+        |> Tuple.to_list()
+        |> Enum.map(&String.to_charlist/1)
+        |> Enum.zip()
+        |> Enum.map(&Tuple.to_list/1)
+        |> Enum.map(&to_string/1)
+        |> Enum.map(&String.trim/1)
+        |> Enum.filter(&(&1 != ""))
+        |> Enum.map(&String.to_integer/1)
+      end)
+
+    chunked_ops = chunk(ops, col_widths, [])
+
+    ops = Enum.map(chunked_ops, &String.trim/1)
+
+    %__MODULE__{data: Enum.zip(nums, ops)}
+  end
+
+  defp chunk(_line, [] = _widths, chunked), do: chunked
+
+  defp chunk(line, [width | widths], chunked) do
+    {chunk, rest} = String.split_at(line, width)
+    chunk(rest, widths, [chunk | chunked])
+  end
+
+  def solve(%__MODULE__{data: data}) do
     Enum.sum_by(
       data,
       fn
-        {nums, "*"} -> nums |> Tuple.to_list() |> Enum.product_by(&String.to_integer/1)
-        {nums, "+"} -> nums |> Tuple.to_list() |> Enum.sum_by(&String.to_integer/1)
+        {nums, "*"} -> Enum.product(nums)
+        {nums, "+"} -> Enum.sum(nums)
       end
     )
-  end
-
-  def solve_p2(%__MODULE__{data: data}) do
-    # TODO: Implement part 2
-    data
   end
 end
