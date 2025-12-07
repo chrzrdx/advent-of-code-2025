@@ -4,12 +4,12 @@ defmodule AdventOfCode2025.Day07 do
   def solve_p1(filename) do
     filename
     |> Labs.from_file()
-    |> Labs.solve_p1()
+    |> Labs.count_splits()
   end
 
   def solve_p2(filename) do
     filename
     |> Labs.from_file()
-    |> Labs.solve_p2()
+    |> Labs.count_paths()
   end
 end
