@@ -47,8 +47,29 @@ defmodule AdventOfCode2025.Day07.Labs do
     )
   end
 
-  def solve_p2(%__MODULE__{data: data}) do
-    # TODO: Implement part 2
-    data
+  def solve_p2(%__MODULE__{data: {splitters, source}}) do
+    count_paths(splitters, %{source => 1})
+  end
+
+  defp count_paths([], beams_with_path_counts),
+    do: beams_with_path_counts |> Map.values() |> Enum.sum()
+
+  defp count_paths(splitters, beams_with_path_counts) do
+    [splitters_on_this_line | rest_splitters] = splitters
+    beams = Map.keys(beams_with_path_counts) |> MapSet.new()
+
+    hit_beams = MapSet.intersection(beams, splitters_on_this_line)
+
+    {hits, unhits} =
+      Map.split(beams_with_path_counts, hit_beams |> MapSet.to_list())
+
+    new_beams_with_path_counts =
+      hits
+      |> Enum.flat_map(fn {beam, count} -> [{beam + 1, count}, {beam - 1, count}] end)
+      |> Enum.group_by(fn {beam, _} -> beam end, fn {_, count} -> count end)
+      |> Map.new(fn {x, y} -> {x, Enum.sum(y)} end)
+      |> Map.merge(unhits, fn _key, v1, v2 -> v1 + v2 end)
+
+    count_paths(rest_splitters, new_beams_with_path_counts)
   end
 end
