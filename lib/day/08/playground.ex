@@ -26,7 +26,7 @@ defmodule AdventOfCode2025.Day08.Playground do
   end
 
   def solve_p1(playground, conns_to_make) do
-    connections = get_top_n_pairwise_distances(playground, conns_to_make)
+    connections = pairwise_distances(playground) |> Enum.take(conns_to_make)
 
     %{clusters: clusters} =
       Enum.reduce(connections, playground, fn {p1, p2, _}, playground ->
@@ -40,25 +40,26 @@ defmodule AdventOfCode2025.Day08.Playground do
     |> Enum.product()
   end
 
-  def solve_p2(_playground) do
-    0
+  def solve_p2(playground) do
+    connections = pairwise_distances(playground)
+    {p1, p2} = merge_until_one_cluster(playground, connections)
+    elem(p1, 0) * elem(p2, 0)
   end
 
-  def get_top_n_pairwise_distances(%__MODULE__{points: points}, n) do
+  defp pairwise_distances(%__MODULE__{points: points}) do
     for {p1, i} <- points,
         {p2, j} <- points,
         i < j do
       {p1, p2, distance(p1, p2)}
     end
     |> Enum.sort_by(fn {_, _, distance} -> distance end)
-    |> Enum.take(n)
   end
 
   defp distance({x1, y1, z1}, {x2, y2, z2}) do
     (x1 - x2) ** 2 + (y1 - y2) ** 2 + (z1 - z2) ** 2
   end
 
-  def merge_clusters(%__MODULE__{points: points, clusters: clusters} = data, {p1, p2}) do
+  defp merge_clusters(%__MODULE__{points: points, clusters: clusters} = data, {p1, p2}) do
     cond do
       points[p1] == points[p2] ->
         data
@@ -74,9 +75,20 @@ defmodule AdventOfCode2025.Day08.Playground do
           points: Map.merge(points, new_points),
           clusters:
             clusters
-            |> Map.put(points[p2], MapSet.new())
+            |> Map.delete(points[p2])
             |> Map.put(points[p1], combined_cluster)
         }
+    end
+  end
+
+  defp merge_until_one_cluster(playground, [{p1, p2, _} | rest_connections]) do
+    new_playground = merge_clusters(playground, {p1, p2})
+    %{clusters: clusters} = new_playground
+
+    if map_size(clusters) == 1 do
+      {p1, p2}
+    else
+      merge_until_one_cluster(new_playground, rest_connections)
     end
   end
 end

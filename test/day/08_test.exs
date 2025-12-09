@@ -17,14 +17,12 @@ defmodule AdventOfCode2025.Day08Test do
   end
 
   describe "part 2" do
-    @tag :skip
     test "example" do
-      assert solve_p2(@p2) == 0
+      assert solve_p2(@p2) == 25272
     end
 
-    @tag :skip
     test "puzzle" do
-      assert solve_p2(@puzzle) == 0
+      assert solve_p2(@puzzle) == 31_182_420
     end
   end
 end
