@@ -8,10 +8,9 @@ defmodule AdventOfCode2025.Day09Test do
 
   describe "part 1" do
     test "example" do
-      assert solve_p1(@p1) == 0
+      assert solve_p1(@p1) == 50
     end
 
-    @tag :skip
     test "puzzle" do
       assert solve_p1(@puzzle) == 0
     end

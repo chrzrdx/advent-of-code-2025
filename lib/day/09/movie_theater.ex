@@ -22,8 +22,12 @@ defmodule AdventOfCode2025.Day09.MovieTheater do
   end
 
   def solve_p1(%__MODULE__{data: data}) do
-    # TODO: Implement part 1
-    data
+    for {x1, y1} <- data,
+        {x2, y2} <- data,
+        x1 < x2 do
+      abs((x2 - x1 + 1) * (y2 - y1 + 1))
+    end
+    |> Enum.max()
   end
 
   def solve_p2(%__MODULE__{data: data}) do
