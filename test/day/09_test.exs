@@ -12,14 +12,14 @@ defmodule AdventOfCode2025.Day09Test do
     end
 
     test "puzzle" do
-      assert solve_p1(@puzzle) == 0
+      assert solve_p1(@puzzle) == 4_754_955_192
     end
   end
 
   describe "part 2" do
     @tag :skip
     test "example" do
-      assert solve_p2(@p2) == 0
+      assert solve_p2(@p2) == 24
     end
 
     @tag :skip
