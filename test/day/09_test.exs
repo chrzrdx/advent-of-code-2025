@@ -17,7 +17,6 @@ defmodule AdventOfCode2025.Day09Test do
   end
 
   describe "part 2" do
-    @tag :skip
     test "example" do
       assert solve_p2(@p2) == 24
     end
