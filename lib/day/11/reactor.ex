@@ -28,22 +28,38 @@ defmodule AdventOfCode2025.Day11.Reactor do
   end
 
   def solve_p1(%__MODULE__{data: data}) do
-    paths(data, :you, 0)
+    paths(data, :you, :out, 0)
   end
 
-  def paths(_data, :out, count), do: count + 1
+  def paths(_data, source, dest, count) when source == dest,
+    do: (count + 1) |> IO.inspect(label: "arrived at dest #{dest}")
 
-  def paths(data, source, count) do
-    if data[source] do
-      data[source]
-      |> Enum.map(fn output -> paths(data, output, count) end)
-      |> Enum.sum()
-    else
-      count
-    end
+  def paths(data, source, _dest, _count) when not is_map_key(data, source),
+    do: 0 |> IO.inspect(label: "#{source} is a dead end")
+
+  def paths(data, source, dest, count) do
+    data[source]
+    |> IO.inspect(label: "data[source]")
+    |> Enum.map(fn output ->
+      paths(data, output, dest, count)
+    end)
+    |> Enum.sum()
+    |> IO.inspect(label: "paths from #{source} to #{dest}")
   end
 
   def solve_p2(%__MODULE__{data: data}) do
-    data
+    IO.inspect(data, label: "data")
+
+    srv_to_dac = paths(data, :svr, :dac, 0) |> IO.inspect(label: "srv_to_dac")
+    dac_to_fft = paths(data, :dac, :fft, 0) |> IO.inspect(label: "dac_to_fft")
+    fft_to_out = paths(data, :fft, :out, 0) |> IO.inspect(label: "fft_to_out")
+    srv_to_fft = paths(data, :svr, :fft, 0) |> IO.inspect(label: "srv_to_fft")
+    fft_to_dac = paths(data, :fft, :dac, 0) |> IO.inspect(label: "fft_to_dac")
+    dac_to_out = paths(data, :dac, :out, 0) |> IO.inspect(label: "dac_to_out")
+
+    srv_to_dac_to_fft_to_out = srv_to_dac * dac_to_fft * fft_to_out
+    srv_to_fft_to_dac_to_out = srv_to_fft * fft_to_dac * dac_to_out
+
+    srv_to_dac_to_fft_to_out + srv_to_fft_to_dac_to_out
   end
 end
